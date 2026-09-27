@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - DigitalGrowth Hub</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        /* --- GLOBAL RESET & BACKGROUND --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { color: white; min-height: 100vh; display: flex; justify-content: center; align-items: center; flex-direction: column; background: linear-gradient(-45deg, #020617, #0f172a, #1e1b4b, #082f49); background-size: 400% 400%; animation: gradientBG 15s ease infinite; position: relative; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+        /* --- FLASH MESSAGES --- */
+        .flash-message { position: absolute; top: 15px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(244, 67, 54, 0.9); color: white; padding: 12px 20px; border-radius: 8px; text-align: center; width: 90%; max-width: 400px; box-shadow: 0 5px 20px rgba(0,0,0,0.5); font-weight: 500; font-size: 14px; border: 1px solid rgba(255,255,255,0.1); }
+        .flash-success { background: rgba(16, 185, 129, 0.9); }
+
+        /* --- LOGIN BOX (GLASSMORPHISM) --- */
+        .login-box { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); padding: 35px 35px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.1); width: 90%; max-width: 450px; text-align: center; margin-top: 30px; margin-bottom: 30px; }
+        
+        /* CSS Error Fix: Removed webkit background clip, assigned solid theme color */
+        .login-box h2 { margin-bottom: 20px; font-size: 28px; font-weight: 600; color: #38bdf8; }
+
+        /* --- FLOATING INPUT FIELDS --- */
+        .input-group { position: relative; margin-bottom: 18px; text-align: left; }
+        .input-group input { width: 100%; padding: 12px 15px 12px 42px; background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; outline: none; color: white; font-size: 14px; transition: 0.3s; }
+        .input-group input:focus { border-color: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); background: rgba(0, 0, 0, 0.4); }
+        .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 16px; transition: 0.3s; }
+        .input-group input:focus + .input-icon, .input-group input:valid + .input-icon { color: #38bdf8; }
+        .input-group label { position: absolute; left: 42px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 14px; pointer-events: none; transition: 0.3s; }
+        .input-group input:focus ~ label, .input-group input:valid ~ label { top: -8px; left: 10px; font-size: 11px; color: #38bdf8; background: #0f172a; padding: 0 5px; border-radius: 3px; }
+        .toggle-password { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #94a3b8; transition: 0.3s; font-size: 16px; z-index: 10; }
+        .toggle-password:hover { color: #38bdf8; }
+
+        /* --- OTP SPECIFIC STYLES --- */
+        .otp-input { text-align: center !important; letter-spacing: 8px !important; font-size: 20px !important; font-weight: bold; padding-left: 15px !important; }
+
+        /* --- BUTTONS & LINKS --- */
+        .login-btn { width: 100%; padding: 12px; background: linear-gradient(45deg, #38bdf8, #6366f1); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 600; transition: 0.4s ease; box-shadow: 0 8px 15px rgba(99, 102, 241, 0.3); text-transform: uppercase; margin-top: 5px; }
+        .login-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 20px rgba(99, 102, 241, 0.5); }
+        .verify-btn { background: linear-gradient(45deg, #10b981, #059669); box-shadow: 0 8px 15px rgba(16, 185, 129, 0.3); }
+        .verify-btn:hover { box-shadow: 0 12px 20px rgba(16, 185, 129, 0.5); }
+        
+        .divider { display: flex; align-items: center; text-align: center; margin: 15px 0; color: #94a3b8; font-size: 12px; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .divider span { padding: 0 10px; }
+        .google-btn { width: 100%; padding: 10px; background: white; color: #0f172a; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s; }
+        .google-btn:hover { transform: translateY(-2px); background: #f8fafc; }
+        .links { margin-top: 20px; font-size: 13px; color: #94a3b8; }
+        .links a { color: #38bdf8; text-decoration: none; font-weight: 500; margin-left: 5px; }
+        .links a:hover { text-decoration: underline; }
+        .back-home { position: absolute; top: 20px; left: 30px; color: #cbd5e1; text-decoration: none; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 6px; }
+        .back-home:hover { color: #38bdf8; transform: translateX(-5px); }
+    </style>
+</head>
+<body>
+
+    <a href="/" class="back-home"><i class="fas fa-arrow-left"></i> Back to Home</a>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash-message {% if 'Success' in message %}flash-success{% endif %}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <div class="login-box">
+        
+        {% if show_otp %}
+            
+            <h2>Verify Email</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">We've sent a 6-digit OTP to your email.</p>
+            
+            <form method="POST" action="/signup">
+                <div class="input-group">
+                    <input type="text" name="otp" class="otp-input" placeholder="000000" maxlength="6" pattern="\d{6}" required autocomplete="off">
+                </div>
+                <button type="submit" class="login-btn verify-btn">Verify & Create Account</button>
+            </form>
+            
+            <div class="links">
+                <a href="/signup">← Change Email</a>
+            </div>
+
+        {% else %}
+            
+            <h2>Create Account</h2>
+            
+            <form method="POST" action="/signup">
+                <div class="input-group">
+                    <input type="text" id="fullname" name="fullname" required>
+                    <i class="fas fa-user input-icon"></i>
+                    <label for="fullname">Full Name</label>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="username" name="username" required>
+                    <i class="fas fa-id-badge input-icon"></i>
+                    <label for="username">Username</label>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="email" name="email" required>
+                    <i class="fas fa-envelope input-icon"></i>
+                    <label for="email">Email Address</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" required>
+                    <i class="fas fa-lock input-icon"></i>
+                    <label for="password">Create Password</label>
+                    <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                </div>
+                
+                <button type="submit" class="login-btn">Send OTP</button>
+            </form>
+
+            <div class="divider"><span>OR</span></div>
+            
+            <button type="button" onclick="signInWithGoogle()" class="google-btn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="G" width="20">
+                Sign up with Google
+            </button>
+            
+            <div class="links">
+                Already have an account? <a href="/login">Sign In</a>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <script>
+        // Toggle Password Visibility
+        document.addEventListener("DOMContentLoaded", function() {
+            const togglePassword = document.getElementById('togglePassword');
+            if(togglePassword) {
+                const password = document.getElementById('password');
+                togglePassword.addEventListener('click', function () {
+                    const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                    password.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+        });
+
+        // FIREBASE GOOGLE SIGNUP LOGIC
+        const firebaseConfig = {
+            apiKey: "AIzaSyAPWfrqJGY5ls79pbw5RKMKdPSkQqFZUy8",
+            authDomain: "business-development-ff915.firebaseapp.com",
+            projectId: "business-development-ff915",
+            storageBucket: "business-development-ff915.firebasestorage.app",
+            messagingSenderId: "182866645134",
+            appId: "1:182866645134:web:33517b6f46ea93fd6839df"
+        };
+
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            firebase.auth().signInWithPopup(provider).then((result) => {
+                const user = result.user;
+                fetch('/google-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: user.email, name: user.displayName })
+                })
+                .then(res => res.json())
+                .then(data => { if(data.status === 'success') window.location.href = data.redirect; });
+            }).catch((error) => {
+                console.error("Error during Google Sign-Up:", error);
+                alert("Google Sign-Up Failed! Try again.");
+            });
+        }
+    </script>
+</body>
+</html>

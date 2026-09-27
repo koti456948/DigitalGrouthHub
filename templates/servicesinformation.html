@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services Information - DigitalGrowth Hub</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.134.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+    <style>
+        /* --- PREMIUM CSS VARIABLES --- */
+        :root {
+            --bg-deep: #020617; 
+            --primary-glow: #38bdf8; 
+            --accent-glow: #c084fc; 
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-glass: rgba(15, 23, 42, 0.4);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* --- GLOBAL RESET --- */
+        * {
+            margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth;
+        }
+
+        body {
+            color: var(--text-main); overflow-x: hidden;
+            background: var(--bg-deep); font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased; min-height: 100vh;
+        }
+
+        h1, h2, h3, .logo { font-family: 'Outfit', sans-serif; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-deep); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary-glow); }
+
+        /* --- 3D CANVAS BACKGROUND --- */
+        #bg-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            z-index: -2; pointer-events: none; outline: none;
+        }
+        
+        /* Dark Gradient Overlay for Readability */
+        .bg-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: linear-gradient(to bottom, rgba(2,6,23,0.3) 0%, rgba(2,6,23,0.8) 100%);
+            z-index: -1; pointer-events: none;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 60px; background: rgba(2, 6, 23, 0.3);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo {
+            font-size: 26px; font-weight: 700;
+            background: linear-gradient(135deg, #fff, #b4c6ef);
+            -webkit-background-clip: text; background-clip: text; 
+            color: transparent; letter-spacing: -1px; display: flex; align-items: center; gap: 10px;
+        }
+        .logo i { color: var(--primary-glow); -webkit-text-fill-color: var(--primary-glow); text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
+
+        .nav-back-btn {
+            text-decoration: none; color: var(--text-main); font-size: 15px; font-weight: 500;
+            padding: 10px 24px; border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px; background: rgba(255, 255, 255, 0.05); transition: 0.3s;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .nav-back-btn:hover {
+            background: #fff; color: var(--bg-deep); border-color: #fff;
+            transform: translateY(-2px); box-shadow: 0 10px 20px rgba(255,255,255,0.1);
+        }
+
+        /* --- HEADER --- */
+        .header { text-align: center; padding: 60px 20px 40px; position: relative; z-index: 10; animation: fadeDown 1s ease; }
+        .header h1 { font-size: 50px; color: white; margin-bottom: 15px; letter-spacing: -1px; }
+        .header h1 span { color: var(--primary-glow); }
+        .header p { color: var(--text-muted); font-size: 18px; max-width: 600px; margin: 0 auto; }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- PREMIUM TABS DASHBOARD --- */
+        .tabs-container {
+            max-width: 1200px; margin: 0 auto 80px; display: flex;
+            background: var(--card-glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--border-glass); border-radius: 30px;
+            overflow: hidden; min-height: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+            position: relative; z-index: 10; animation: fadeUp 1s ease 0.3s forwards; opacity: 0;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* LEFT SIDE: TAB BUTTONS */
+        .tab-menu {
+            width: 30%; background: rgba(2, 6, 23, 0.4); display: flex; flex-direction: column;
+            border-right: 1px solid var(--border-glass); padding: 20px 0; overflow-y: auto;
+        }
+
+        .tab-menu::-webkit-scrollbar { width: 5px; }
+        .tab-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 5px; }
+
+        .tab-link {
+            background: transparent; color: var(--text-muted); padding: 20px 30px;
+            text-align: left; border: none; font-size: 16px; font-weight: 500;
+            font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; transition: var(--transition-smooth);
+            display: flex; align-items: center; position: relative; border-left: 3px solid transparent;
+        }
+
+        .tab-link i { width: 30px; font-size: 18px; transition: 0.3s; }
+
+        .tab-link:hover { background: rgba(56, 189, 248, 0.05); color: white; }
+        
+        .tab-link.active {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.15) 0%, transparent 100%);
+            color: var(--primary-glow); border-left: 3px solid var(--primary-glow);
+        }
+        .tab-link.active i { text-shadow: 0 0 10px var(--primary-glow); }
+
+        /* RIGHT SIDE: TAB CONTENT */
+        .tab-content-area { width: 70%; padding: 60px; position: relative; }
+
+        .tab-content { display: none; animation: fadeInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .content-header { display: flex; align-items: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid var(--border-glass); }
+        .content-header i { font-size: 40px; color: var(--primary-glow); margin-right: 25px; text-shadow: 0 0 20px rgba(56,189,248,0.5); }
+        .content-header h2 { font-size: 36px; color: white; letter-spacing: -1px; }
+
+        .overview {
+            font-size: 18px; color: #e2e8f0; line-height: 1.8; margin-bottom: 35px;
+            background: rgba(56, 189, 248, 0.05); padding: 20px 25px;
+            border-left: 4px solid var(--primary-glow); border-radius: 0 12px 12px 0;
+        }
+
+        .features-list { list-style: none; margin-bottom: 45px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .features-list li {
+            font-size: 16px; color: var(--text-muted); display: flex; align-items: flex-start;
+            background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);
+        }
+        .features-list li i { color: var(--primary-glow); margin-top: 4px; margin-right: 15px; font-size: 14px; }
+
+        .book-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 16px 40px;
+            background: #fff; color: var(--bg-deep); border: none; border-radius: 100px;
+            font-size: 16px; font-weight: 600; cursor: pointer; transition: var(--transition-smooth);
+            font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .book-btn:hover {
+            background: var(--primary-glow); color: #000; transform: translateY(-4px); box-shadow: 0 10px 25px rgba(56, 189, 248, 0.4);
+        }
+
+        /* --- RESPONSIVE FOR MOBILE --- */
+        @media (max-width: 992px) {
+            .tabs-container { flex-direction: column; margin: 0 20px 50px; min-height: auto; }
+            .tab-menu {
+                width: 100%; flex-direction: row; overflow-x: auto; white-space: nowrap;
+                border-right: none; border-bottom: 1px solid var(--border-glass); padding: 0;
+            }
+            .tab-link {
+                border-left: none !important; border-bottom: 3px solid transparent; padding: 20px; font-size: 14px;
+            }
+            .tab-link.active {
+                background: linear-gradient(0deg, rgba(56, 189, 248, 0.15) 0%, transparent 100%);
+                border-bottom: 3px solid var(--primary-glow);
+            }
+            .tab-content-area { width: 100%; padding: 40px 25px; }
+            .features-list { grid-template-columns: 1fr; gap: 15px; }
+            .header h1 { font-size: 40px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="bg-canvas"></div>
+    <div class="bg-overlay"></div>
+
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-layer-group"></i> DigitalGrowth</div>
+        <a href="/" class="nav-back-btn"><i class="fas fa-arrow-left"></i> Back to Home</a> 
+    </nav>
+
+    <div class="header">
+        <h1>Explore Our <span>Services</span></h1>
+        <p>Select a service module from the dashboard below to view deep insights and actionable strategies.</p>
+    </div>
+
+    <div class="tabs-container">
+        
+        <div class="tab-menu">
+            <button class="tab-link active" onclick="openService(event, 'market-research')"><i class="fas fa-chart-line"></i> Market Research</button>
+            <button class="tab-link" onclick="openService(event, 'brand-strategy')"><i class="fas fa-bullhorn"></i> Brand Strategy</button>
+            <button class="tab-link" onclick="openService(event, 'seo-marketing')"><i class="fas fa-laptop-code"></i> SEO & Digital</button>
+            <button class="tab-link" onclick="openService(event, 'b2b-leads')"><i class="fas fa-users"></i> B2B Leads</button>
+            <button class="tab-link" onclick="openService(event, 'sales-funnel')"><i class="fas fa-handshake"></i> Sales Funnels</button>
+            <button class="tab-link" onclick="openService(event, 'social-media')"><i class="fas fa-share-alt"></i> Social Media</button>
+            <button class="tab-link" onclick="openService(event, 'finance')"><i class="fas fa-file-invoice-dollar"></i> Finance Plan</button>
+            <button class="tab-link" onclick="openService(event, 'it-solutions')"><i class="fas fa-cogs"></i> IT Solutions</button>
+            <button class="tab-link" onclick="openService(event, 'crm-setup')"><i class="fas fa-heart"></i> CRM Setup</button>
+            <button class="tab-link" onclick="openService(event, 'hr-consulting')"><i class="fas fa-user-tie"></i> HR Consulting</button>
+            <button class="tab-link" onclick="openService(event, 'content')"><i class="fas fa-pen-nib"></i> Content</button>
+            <button class="tab-link" onclick="openService(event, 'sales-growth')"><i class="fas fa-rocket"></i> Sales Growth</button>
+        </div>
+
+        <div class="tab-content-area">
+            
+            <div id="market-research" class="tab-content active">
+                <div class="content-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h2>Market Research & Analysis</h2>
+                </div>
+                <div class="overview">
+                    We provide a comprehensive analysis of industry trends, competitor strategies, and target demographics to ensure your business makes data-driven decisions.
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Competitor SWOT analysis & positioning.</li>
+                    <li><i class="fas fa-check"></i> Identifying untouched market gaps.</li>
+                    <li><i class="fas fa-check"></i> Creating ideal customer personas.</li>
+                    <li><i class="fas fa-check"></i> Forecasting industry trends.</li>
+                </ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Market Research'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="brand-strategy" class="tab-content">
+                <div class="content-header">
+                    <i class="fas fa-bullhorn"></i>
+                    <h2>Brand Strategy & Positioning</h2>
+                </div>
+                <div class="overview">
+                    We craft a unique, memorable identity that resonates deeply with your target audience and makes you stand out in a crowded marketplace.
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Premium logos & visual guidelines.</li>
+                    <li><i class="fas fa-check"></i> Engaging brand voice and tone.</li>
+                    <li><i class="fas fa-check"></i> Compelling brand storytelling.</li>
+                    <li><i class="fas fa-check"></i> Strong value proposition design.</li>
+                </ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Brand Strategy'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="seo-marketing" class="tab-content">
+                <div class="content-header">
+                    <i class="fas fa-laptop-code"></i>
+                    <h2>SEO & Digital Marketing</h2>
+                </div>
+                <div class="overview">
+                    We boost your online visibility, drive targeted organic traffic, and optimize digital channels to maximize your return on investment.
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Technical & on-page SEO audits.</li>
+                    <li><i class="fas fa-check"></i> Extensive keyword rank research.</li>
+                    <li><i class="fas fa-check"></i> Profitable Google Ads & PPC.</li>
+                    <li><i class="fas fa-check"></i> Speed & mobile optimization.</li>
+                </ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=SEO'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="b2b-leads" class="tab-content">
+                <div class="content-header">
+                    <i class="fas fa-users"></i>
+                    <h2>B2B Lead Generation</h2>
+                </div>
+                <div class="overview">
+                    We identify, engage, and capture high-value business prospects to consistently fill your sales pipeline with qualified leads.
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Defining specific Customer Profiles.</li>
+                    <li><i class="fas fa-check"></i> Personalized cold email outreach.</li>
+                    <li><i class="fas fa-check"></i> LinkedIn networking & Social Selling.</li>
+                    <li><i class="fas fa-check"></i> Setting up qualified appointments.</li>
+                </ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Lead Generation'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="sales-funnel" class="tab-content">
+                <div class="content-header">
+                    <i class="fas fa-handshake"></i>
+                    <h2>Sales Funnel Optimization</h2>
+                </div>
+                <div class="overview">
+                    We streamline your customer journey from initial awareness to final purchase, significantly reducing drop-offs and increasing sales.
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> High-converting landing pages.</li>
+                    <li><i class="fas fa-check"></i> Creating valuable lead magnets.</li>
+                    <li><i class="fas fa-check"></i> Continuous A/B split testing.</li>
+                    <li><i class="fas fa-check"></i> Retargeting ad campaigns.</li>
+                </ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Sales Funnel'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="social-media" class="tab-content">
+                <div class="content-header">
+                    <i class="fas fa-share-alt"></i>
+                    <h2>Social Media Management</h2>
+                </div>
+                <div class="overview">
+                    We build an active community and elevate brand awareness across major platforms like Instagram, Facebook, LinkedIn, and Twitter.
+                </div>
+                <ul class="features-list">
+                    <li><i class="fas fa-check"></i> Custom social content calendars.</li>
+                    <li><i class="fas fa-check"></i> Graphics & short-form videos.</li>
+                    <li><i class="fas fa-check"></i> Targeted paid social media ads.</li>
+                    <li><i class="fas fa-check"></i> Monthly performance reports.</li>
+                </ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Social Media'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="finance" class="tab-content">
+                <div class="content-header"><i class="fas fa-file-invoice-dollar"></i><h2>Financial Planning</h2></div>
+                <div class="overview">Strategic financial management to ensure sustainable scaling and optimized cash flow.</div>
+                <ul class="features-list"><li><i class="fas fa-check"></i> Revenue forecasts.</li><li><i class="fas fa-check"></i> Cash flow analysis.</li><li><i class="fas fa-check"></i> Pricing model optimization.</li><li><i class="fas fa-check"></i> Tax efficiency strategies.</li></ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Financial Planning'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="it-solutions" class="tab-content">
+                <div class="content-header"><i class="fas fa-cogs"></i><h2>IT Solutions</h2></div>
+                <div class="overview">Modernize business operations by integrating technology and automating workflows.</div>
+                <ul class="features-list"><li><i class="fas fa-check"></i> Custom software solutions.</li><li><i class="fas fa-check"></i> Secure cloud migration.</li><li><i class="fas fa-check"></i> Task automation.</li><li><i class="fas fa-check"></i> Cybersecurity audits.</li></ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=IT Solutions'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="crm-setup" class="tab-content">
+                <div class="content-header"><i class="fas fa-heart"></i><h2>CRM Setup</h2></div>
+                <div class="overview">Enhance customer retention and lifetime value through structured relationship management.</div>
+                <ul class="features-list"><li><i class="fas fa-check"></i> Salesforce/HubSpot implementation.</li><li><i class="fas fa-check"></i> Data migration.</li><li><i class="fas fa-check"></i> Automated sales pipelines.</li><li><i class="fas fa-check"></i> Smart ticketing systems.</li></ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=CRM Setup'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="hr-consulting" class="tab-content">
+                <div class="content-header"><i class="fas fa-user-tie"></i><h2>HR Consulting</h2></div>
+                <div class="overview">Build a high-performing workforce by attracting, evaluating, and retaining top talent.</div>
+                <ul class="features-list"><li><i class="fas fa-check"></i> Compliant job descriptions.</li><li><i class="fas fa-check"></i> Optimized screening process.</li><li><i class="fas fa-check"></i> KPI review systems.</li><li><i class="fas fa-check"></i> Compensation benchmarking.</li></ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=HR Consulting'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="content" class="tab-content">
+                <div class="content-header"><i class="fas fa-pen-nib"></i><h2>Content Creation</h2></div>
+                <div class="overview">High-quality, engaging content that tells your brand's story and drives action.</div>
+                <ul class="features-list"><li><i class="fas fa-check"></i> High-converting copy.</li><li><i class="fas fa-check"></i> SEO-rich blog posts.</li><li><i class="fas fa-check"></i> Engaging video scripts.</li><li><i class="fas fa-check"></i> Infographics design.</li></ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Content Creation'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="sales-growth" class="tab-content">
+                <div class="content-header"><i class="fas fa-rocket"></i><h2>Sales Growth</h2></div>
+                <div class="overview">Robust sales frameworks that empower your team to close deals and accelerate revenue.</div>
+                <ul class="features-list"><li><i class="fas fa-check"></i> Step-by-step sales playbooks.</li><li><i class="fas fa-check"></i> Sales cycle optimization.</li><li><i class="fas fa-check"></i> Commission structures.</li><li><i class="fas fa-check"></i> B2B partnerships.</li></ul>
+                <button class="book-btn" onclick="window.location.href='/book?service=Sales Growth'">Deploy Strategy <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function openService(evt, serviceId) {
+            var tabcontent = document.getElementsByClassName("tab-content");
+            for (var i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+                tabcontent[i].classList.remove("active");
+            }
+
+            var tablinks = document.getElementsByClassName("tab-link");
+            for (var i = 0; i < tablinks.length; i++) {
+                tablinks[i].classList.remove("active");
+            }
+
+            document.getElementById(serviceId).style.display = "block";
+            document.getElementById(serviceId).classList.add("active");
+            evt.currentTarget.classList.add("active");
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('bg-canvas');
+            if(!container) return;
+
+            // 1. Scene Setup
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x020617, 0.015); // Fade out grid in distance
+
+            // Camera placed low to look across the "digital ocean"
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 15, 40);
+            camera.rotation.x = -0.2;
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            container.appendChild(renderer.domElement);
+
+            // Post Processing (Glow)
+            const renderScene = new THREE.RenderPass(scene, camera);
+            const bloomPass = new THREE.UnrealBloomPass(
+                new THREE.Vector2(window.innerWidth, window.innerHeight),
+                1.5, 0.4, 0.1 
+            );
+            const composer = new THREE.EffectComposer(renderer);
+            composer.addPass(renderScene);
+            composer.addPass(bloomPass);
+
+            // 2. Data Wave Terrain (Grid)
+            const gridGeo = new THREE.PlaneGeometry(200, 150, 40, 30);
+            gridGeo.rotateX(-Math.PI / 2); // Lay flat
+
+            const gridMat = new THREE.MeshBasicMaterial({
+                color: 0x38bdf8,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.15
+            });
+            const terrain = new THREE.Mesh(gridGeo, gridMat);
+            terrain.position.y = -10;
+            scene.add(terrain);
+
+            // 3. Floating Data Nodes (Cubes/Hexagons)
+            const nodesGroup = new THREE.Group();
+            const nodeGeo = new THREE.CylinderGeometry(0.8, 0.8, 1.5, 6); // Hexagon shape
+            const nodeMat = new THREE.MeshStandardMaterial({
+                color: 0xc084fc, metalness: 0.8, roughness: 0.2, emissive: 0xc084fc, emissiveIntensity: 0.5
+            });
+
+            const nodes = [];
+            for(let i=0; i<30; i++) {
+                const mesh = new THREE.Mesh(nodeGeo, nodeMat);
+                mesh.position.set(
+                    (Math.random() - 0.5) * 150,
+                    (Math.random() - 0.5) * 40 + 10,
+                    (Math.random() - 0.5) * 100 - 20
+                );
+                mesh.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+                
+                // Random float speed for each node
+                const speed = 0.01 + Math.random() * 0.02;
+                nodes.push({ mesh, speed, startY: mesh.position.y });
+                nodesGroup.add(mesh);
+            }
+            scene.add(nodesGroup);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            const pointLight = new THREE.PointLight(0x38bdf8, 2, 100);
+            pointLight.position.set(0, 20, 0);
+            scene.add(pointLight);
+
+            // 4. Animation Loop
+            const clock = new THREE.Clock();
+            let mouseX = 0; let mouseY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX - window.innerWidth / 2) * 0.005;
+                mouseY = (e.clientY - window.innerHeight / 2) * 0.005;
+            });
+
+            function animate() {
+                requestAnimationFrame(animate);
+                const time = clock.getElapsedTime();
+
+                // Animate Terrain Waves
+                const positions = terrain.geometry.attributes.position.array;
+                for(let i = 0; i < positions.length; i += 3) {
+                    const x = positions[i];
+                    const z = positions[i+2];
+                    // Create a wave effect modifying the Y position
+                    positions[i+1] = Math.sin((x + time * 5) * 0.1) * 2 + Math.cos((z + time * 3) * 0.1) * 2;
+                }
+                terrain.geometry.attributes.position.needsUpdate = true;
+
+                // Animate Floating Nodes
+                nodes.forEach((node, index) => {
+                    node.mesh.rotation.y += node.speed;
+                    node.mesh.rotation.x += node.speed * 0.5;
+                    node.mesh.position.y = node.startY + Math.sin(time * 2 + index) * 2;
+                });
+
+                // Camera Parallax based on mouse
+                camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
+                camera.position.y += (15 - mouseY * 2 - camera.position.y) * 0.05;
+                camera.lookAt(scene.position);
+
+                composer.render();
+            }
+            animate();
+
+            // Resize handling
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                composer.setSize(window.innerWidth, window.innerHeight);
+            });
+        });
+    </script>
+</body>
+</html>

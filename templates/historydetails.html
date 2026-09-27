@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - DigitalGrowth Hub</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #020617; 
+            --primary-glow: #38bdf8; 
+            --card-glass: rgba(15, 23, 42, 0.6);
+            --border-glass: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        body {
+            background: var(--bg-deep); color: #f8fafc; min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(56,189,248,0.1) 0%, transparent 50%);
+        }
+
+        h1, h2 { font-family: 'Outfit', sans-serif; }
+
+        /* Navbar */
+        .navbar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 60px; background: rgba(2, 6, 23, 0.5);
+            backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-glass);
+        }
+        .logo { font-size: 24px; font-weight: 700; color: #fff; }
+        .logo i { color: var(--primary-glow); }
+        .nav-links a { color: #cbd5e1; text-decoration: none; font-weight: 500; transition: 0.3s; margin-left: 20px; }
+        .nav-links a:hover { color: #fff; }
+        
+        /* Dashboard Container */
+        .dashboard-container {
+            max-width: 1100px; margin: 60px auto; padding: 0 20px;
+            animation: fadeIn 0.8s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .welcome-header {
+            margin-bottom: 40px; display: flex; justify-content: space-between; align-items: flex-end;
+        }
+        .welcome-header h1 { font-size: 42px; letter-spacing: -1px; }
+        .welcome-header span { color: var(--primary-glow); }
+        .welcome-header p { color: #94a3b8; font-size: 16px; margin-top: 5px; }
+        
+        .new-booking-btn {
+            padding: 12px 24px; background: var(--primary-glow); color: #020617;
+            border: none; border-radius: 100px; font-weight: 600; text-decoration: none;
+            transition: 0.3s; box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+        .new-booking-btn:hover { transform: translateY(-3px); box-shadow: 0 0 25px rgba(56, 189, 248, 0.5); background: #fff; }
+
+        /* Table Design */
+        .table-wrapper {
+            background: var(--card-glass); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass); border-radius: 20px;
+            overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        
+        thead { background: rgba(255, 255, 255, 0.05); }
+        th { padding: 20px 25px; font-weight: 600; color: #cbd5e1; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--border-glass); }
+        
+        td { padding: 20px 25px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); color: #f8fafc; font-size: 15px; }
+        
+        tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        .service-name { font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .service-name i { color: var(--primary-glow); }
+
+        /* Status Badges */
+        .status { padding: 6px 12px; border-radius: 50px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; }
+        .status.pending { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status.confirmed { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status.completed { background: rgba(56, 189, 248, 0.15); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+        .empty-state i { font-size: 50px; color: rgba(255,255,255,0.1); margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="logo"><i class="fas fa-layer-group"></i> DigitalGrowth</div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/servicesinformation">Services</a>
+            <a href="/logout" style="color: #ef4444;"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="welcome-header">
+            <div>
+                <h1>Welcome, <span>{{ name }}</span></h1>
+                <p>Track and manage your service bookings history here.</p>
+            </div>
+            <a href="/servicesinformation" class="new-booking-btn"><i class="fas fa-plus"></i> New Booking</a>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Service Details</th>
+                        <th>Booking Date</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if bookings %}
+                        {% for booking in bookings %}
+                        <tr>
+                            <td class="service-name">
+                                <i class="fas fa-cube"></i> {{ booking.serviceName }}
+                            </td>
+                            <td><i class="far fa-calendar-alt" style="color: #94a3b8; margin-right: 8px;"></i> {{ booking.date }}</td>
+                            <td style="color: #cbd5e1;">{{ booking.phone }}</td>
+                            <td>
+                                <span class="status pending">Confirmed</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-folder-open"></i>
+                                    <p>No bookings found. Ready to grow your business?</p>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
